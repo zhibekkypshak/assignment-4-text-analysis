@@ -1,4 +1,3 @@
-
 package algorithms;
 
 import java.util.ArrayList;
@@ -9,7 +8,16 @@ public class RabinKarp {
     private static final long BASE = 256;
     private static final long MOD = 1_000_000_007;
 
+    public static long comparisons = 0;
+    public static long spuriousHits = 0;
+
     public static List<Integer> search(String text, String pattern) {
+        return search(text, pattern, BASE, MOD);
+    }
+
+    public static List<Integer> search(String text, String pattern, long base, long mod) {
+        comparisons = 0;
+        spuriousHits = 0;
         List<Integer> result = new ArrayList<>();
 
         int n = text.length();
@@ -31,35 +39,37 @@ public class RabinKarp {
         long highestPower = 1;
 
         for (int i = 0; i < m - 1; i++) {
-            highestPower = (highestPower * BASE) % MOD;
+            highestPower = (highestPower * base) % mod;
         }
 
         for (int i = 0; i < m; i++) {
-            patternHash = (patternHash * BASE
-                    + pattern.charAt(i)) % MOD;
-
-            textHash = (textHash * BASE
-                    + text.charAt(i)) % MOD;
+            patternHash = (patternHash * base + pattern.charAt(i)) % mod;
+            textHash = (textHash * base + text.charAt(i)) % mod;
         }
 
         for (int i = 0; i <= n - m; i++) {
 
-            if (patternHash == textHash &&
-                    text.regionMatches(i, pattern, 0, m)) {
-                result.add(i);
+            if (patternHash == textHash) {
+                boolean equal = true;
+                for (int j = 0; j < m; j++) {
+                    comparisons++;
+                    if (text.charAt(i + j) != pattern.charAt(j)) {
+                        equal = false;
+                        break;
+                    }
+                }
+                if (equal) {
+                    result.add(i);
+                } else {
+                    spuriousHits++;
+                }
             }
 
             if (i < n - m) {
-                textHash = (textHash
-                        - text.charAt(i) * highestPower % MOD
-                        + MOD) % MOD;
-
-                textHash = (textHash * BASE
-                        + text.charAt(i + m)) % MOD;
+                textHash = (textHash - text.charAt(i) * highestPower % mod + mod) % mod;
+                textHash = (textHash * base + text.charAt(i + m)) % mod;
             }
         }
-
         return result;
     }
 }
-
