@@ -1,15 +1,15 @@
-
 package algorithms;
 
 public class Kasai {
 
+    public static long comparisons = 0;
+
     public static int[] buildLCP(String text, int[] suffixArray) {
+        comparisons = 0;
         int n = text.length();
 
         if (suffixArray.length != n) {
-            throw new IllegalArgumentException(
-                    "Suffix array length must equal text length"
-            );
+            throw new IllegalArgumentException("Suffix array length must equal text length");
         }
 
         int[] rank = new int[n];
@@ -19,9 +19,7 @@ public class Kasai {
             int suffix = suffixArray[i];
 
             if (suffix < 0 || suffix >= n || seen[suffix]) {
-                throw new IllegalArgumentException(
-                        "Invalid suffix array"
-                );
+                throw new IllegalArgumentException("Invalid suffix array");
             }
 
             seen[suffix] = true;
@@ -41,8 +39,11 @@ public class Kasai {
 
             int j = suffixArray[r - 1];
 
-            while (i + k < n && j + k < n &&
-                    text.charAt(i + k) == text.charAt(j + k)) {
+            while (i + k < n && j + k < n) {
+                comparisons++;
+                if (text.charAt(i + k) != text.charAt(j + k)) {
+                    break;
+                }
                 k++;
             }
 
@@ -52,7 +53,6 @@ public class Kasai {
                 k--;
             }
         }
-
         return lcp;
     }
 }
